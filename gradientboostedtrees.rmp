@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?><process version="10.3.001">
+  <context>
+    <input/>
+    <output/>
+    <macros/>
+  </context>
+  <operator activated="true" class="process" compatibility="10.3.001" expanded="true" name="Process">
+    <parameter key="logverbosity" value="init"/>
+    <parameter key="random_seed" value="2001"/>
+    <parameter key="send_mail" value="never"/>
+    <parameter key="notification_email" value=""/>
+    <parameter key="process_duration_for_mail" value="30"/>
+    <parameter key="encoding" value="SYSTEM"/>
+    <process expanded="true">
+      <operator activated="true" class="subprocess" compatibility="10.3.001" expanded="true" height="82" name="Data Preparation (2)" width="90" x="45" y="34">
+        <process expanded="true">
+          <operator activated="true" class="retrieve" compatibility="10.3.001" expanded="true" height="68" name="Retrieve winequality-red (2)" width="90" x="45" y="34">
+            <parameter key="repository_entry" value="//Local Repository/winequality-red"/>
+          </operator>
+          <operator activated="true" class="filter_examples" compatibility="10.3.001" expanded="true" height="103" name="Filter Examples (2)" width="90" x="179" y="34">
+            <parameter key="parameter_expression" value=""/>
+            <parameter key="condition_class" value="no_missing_attributes"/>
+            <parameter key="invert_filter" value="false"/>
+            <list key="filters_list"/>
+            <parameter key="filters_logic_and" value="true"/>
+            <parameter key="filters_check_metadata" value="true"/>
+          </operator>
+          <operator activated="true" class="blending:generate_columns" compatibility="10.3.001" expanded="true" height="82" name="Generate Attributes (2)" width="90" x="313" y="34">
+            <list key="function_descriptions">
+              <parameter key="Grade" value="if([quality] &lt;= 6, 0, 1)"/>
+            </list>
+            <parameter key="keep_all_columns" value="true"/>
+          </operator>
+          <operator activated="true" class="numerical_to_binominal" compatibility="10.3.001" expanded="true" height="82" name="Numerical to Binominal (2)" width="90" x="447" y="34">
+            <parameter key="attribute_filter_type" value="single"/>
+            <parameter key="attribute" value="Grade"/>
+            <parameter key="attributes" value=""/>
+            <parameter key="use_except_expression" value="false"/>
+            <parameter key="value_type" value="numeric"/>
+            <parameter key="use_value_type_exception" value="false"/>
+            <parameter key="except_value_type" value="real"/>
+            <parameter key="block_type" value="value_series"/>
+            <parameter key="use_block_type_exception" value="false"/>
+            <parameter key="except_block_type" value="value_series_end"/>
+            <parameter key="invert_selection" value="false"/>
+            <parameter key="include_special_attributes" value="false"/>
+            <parameter key="min" value="0.0"/>
+            <parameter key="max" value="0.0"/>
+          </operator>
+          <operator activated="true" class="blending:set_role" compatibility="10.3.001" expanded="true" height="82" name="Set Role (2)" width="90" x="581" y="34">
+            <list key="set_roles">
+              <parameter key="Grade" value="label"/>
+            </list>
+          </operator>
+          <operator activated="true" class="normalize" compatibility="10.3.001" expanded="true" height="103" name="Normalize (2)" width="90" x="715" y="34">
+            <parameter key="return_preprocessing_model" value="false"/>
+            <parameter key="attribute_filter_type" value="all"/>
+            <parameter key="attribute" value=""/>
+            <parameter key="attributes" value=""/>
+            <parameter key="use_except_expression" value="false"/>
+            <parameter key="value_type" value="numeric"/>
+            <parameter key="use_value_type_exception" value="false"/>
+            <parameter key="except_value_type" value="real"/>
+            <parameter key="block_type" value="value_series"/>
+            <parameter key="use_block_type_exception" value="false"/>
+            <parameter key="except_block_type" value="value_series_end"/>
+            <parameter key="invert_selection" value="false"/>
+            <parameter key="include_special_attributes" value="false"/>
+            <parameter key="method" value="range transformation"/>
+            <parameter key="min" value="0.0"/>
+            <parameter key="max" value="1.0"/>
+            <parameter key="allow_negative_values" value="false"/>
+          </operator>
+          <operator activated="true" class="blending:select_attributes" compatibility="10.3.001" expanded="true" height="82" name="Select Attributes (2)" width="90" x="849" y="34">
+            <parameter key="type" value="exclude attributes"/>
+            <parameter key="attribute_filter_type" value="one attribute"/>
+            <parameter key="select_attribute" value="quality"/>
+            <parameter key="select_subset" value=""/>
+            <parameter key="also_apply_to_special_attributes_(id,_label..)" value="false"/>
+          </operator>
+          <connect from_op="Retrieve winequality-red (2)" from_port="output" to_op="Filter Examples (2)" to_port="example set input"/>
+          <connect from_op="Filter Examples (2)" from_port="example set output" to_op="Generate Attributes (2)" to_port="table input"/>
+          <connect from_op="Generate Attributes (2)" from_port="table output" to_op="Numerical to Binominal (2)" to_port="example set input"/>
+          <connect from_op="Numerical to Binominal (2)" from_port="example set output" to_op="Set Role (2)" to_port="example set input"/>
+          <connect from_op="Set Role (2)" from_port="example set output" to_op="Normalize (2)" to_port="example set input"/>
+          <connect from_op="Normalize (2)" from_port="example set output" to_op="Select Attributes (2)" to_port="example set input"/>
+          <connect from_op="Select Attributes (2)" from_port="example set output" to_port="out 1"/>
+          <portSpacing port="source_in 1" spacing="0"/>
+          <portSpacing port="sink_out 1" spacing="0"/>
+          <portSpacing port="sink_out 2" spacing="0"/>
+          <description align="center" color="orange" colored="true" height="79" resized="false" width="97" x="174" y="155">Filter out the missing values</description>
+          <description align="center" color="orange" colored="true" height="198" resized="false" width="154" x="283" y="140">Generate new attributes name Grade by getting the values from Quality attributes. If quality values lower and equal to 6 is 0, while greater than 6 is 1. 0 means bad quality while 1 is good.</description>
+          <description align="center" color="orange" colored="true" height="131" resized="false" width="102" x="445" y="135">Convert the Grade attributes from numeric to binominal data type.</description>
+          <description align="center" color="orange" colored="true" height="56" resized="false" width="95" x="573" y="135">Set Grade as class label.</description>
+          <description align="left" color="orange" colored="true" height="174" resized="false" width="112" x="700" y="149">Normalize all the data using Min and Max Normalization by scaling numeric value within 0 and 1 except Grade.</description>
+          <description align="center" color="orange" colored="true" height="79" resized="false" width="97" x="40" y="130">Retrieve research dataset.</description>
+          <description align="left" color="orange" colored="true" height="70" resized="false" width="97" x="844" y="147">Remove Quality attribute.</description>
+        </process>
+      </operator>
+      <operator activated="true" class="split_data" compatibility="10.1.003" expanded="true" height="103" name="Split Data (2)" width="90" x="179" y="34">
+        <enumeration key="partitions">
+          <parameter key="ratio" value="0.8"/>
+          <parameter key="ratio" value="0.2"/>
+        </enumeration>
+        <parameter key="sampling_type" value="automatic"/>
+        <parameter key="use_local_random_seed" value="false"/>
+        <parameter key="local_random_seed" value="1992"/>
+      </operator>
+      <operator activated="true" class="h2o:gradient_boosted_trees" compatibility="10.3.001" expanded="true" height="103" name="Gradient Boosted Trees" width="90" x="313" y="34">
+        <parameter key="number_of_trees" value="50"/>
+        <parameter key="reproducible" value="false"/>
+        <parameter key="maximum_number_of_threads" value="4"/>
+        <parameter key="use_local_random_seed" value="false"/>
+        <parameter key="local_random_seed" value="1992"/>
+        <parameter key="maximal_depth" value="5"/>
+        <parameter key="min_rows" value="10.0"/>
+        <parameter key="min_split_improvement" value="1.0E-5"/>
+        <parameter key="number_of_bins" value="20"/>
+        <parameter key="learning_rate" value="0.01"/>
+        <parameter key="sample_rate" value="1.0"/>
+        <parameter key="distribution" value="AUTO"/>
+        <parameter key="early_stopping" value="false"/>
+        <parameter key="stopping_rounds" value="1"/>
+        <parameter key="stopping_metric" value="AUTO"/>
+        <parameter key="stopping_tolerance" value="0.001"/>
+        <list key="monotone_constraints"/>
+        <parameter key="max_runtime_seconds" value="0"/>
+        <list key="expert_parameters"/>
+      </operator>
+      <operator activated="true" class="apply_model" compatibility="10.3.001" expanded="true" height="82" name="Apply Model" width="90" x="447" y="34">
+        <list key="application_parameters"/>
+      </operator>
+      <connect from_op="Data Preparation (2)" from_port="out 1" to_op="Split Data (2)" to_port="example set"/>
+      <connect from_op="Split Data (2)" from_port="partition 1" to_op="Gradient Boosted Trees" to_port="training set"/>
+      <connect from_op="Split Data (2)" from_port="partition 2" to_op="Apply Model" to_port="unlabelled data"/>
+      <connect from_op="Gradient Boosted Trees" from_port="model" to_op="Apply Model" to_port="model"/>
+      <connect from_op="Apply Model" from_port="labelled data" to_port="result 1"/>
+      <portSpacing port="source_input 1" spacing="0"/>
+      <portSpacing port="sink_result 1" spacing="0"/>
+      <portSpacing port="sink_result 2" spacing="0"/>
+    </process>
+  </operator>
+</process>
